@@ -30,18 +30,6 @@ export default () => {
         setDisplayColor((e.target as HTMLInputElement).value);
     }
     
-    const reset = () => {
-        setRoomId("");
-        setRoomIdWarn("");
-        setDisplayColor("#000000");
-        setDisplayColorWarn("");
-    }
-
-    const back = () => {
-        setProgress(progress-1);
-        reset();
-    }
-
     const next = async (e: React.FormEvent) => {
         e.preventDefault();
         if (roomId.length !== 6) {
@@ -75,44 +63,38 @@ export default () => {
 
     return (
         <>
-            <div>
-                <div>
-                    {/* ask for room id */}
-                    {progress === 1 &&
-                        <Form onSubmit={next}>
-                            <InputText label="Room ID" onInput={roomIdChange} />
-                            <ButtonPrimary type="submit" disabled={!roomId}>
-                                Next
-                            </ButtonPrimary>
-                            {roomIdWarn &&
-                                <Warning>{roomIdWarn}</Warning>
-                            }
-                            <Description>
-                                Enter the room ID the host gave you. If you are the host, <a href="/create">create</a> new room.
-                            </Description>
-                        </Form>
-                    }
-                </div>
-                <div>
-                    {/* ask for display color */}
-                    {progress === 2 &&
-                        <Form onSubmit={join}>
-                            <InputColor label="Your Display Color" onInput={displayColorChange} />
-                            <ButtonSecondary onClick={back}>
-                                Back
-                            </ButtonSecondary>
-                            <ButtonPrimary type="submit" disabled={displayColor === "#000000"}>
-                                Join
-                            </ButtonPrimary>
-                            {displayColorWarn &&
-                                <Warning>{displayColorWarn}</Warning>
-                            }
-                            <Description>
-                                You are anonymous here! Select a color will make you unique.
-                            </Description>
-                        </Form>
-                    }
-                </div>
+            <div className="px-12 text-lg">
+                {/* ask for room id */}
+                {progress === 1 &&
+                    <Form onSubmit={next}>
+                    <Description>
+                        Enter the room ID the host gave you. If you are the host, <a href="/create">create</a> new room.
+                    </Description>
+                        <InputText label="Room ID" onInput={roomIdChange} />
+                        <ButtonPrimary type="submit" disabled={!roomId}>
+                            Next
+                        </ButtonPrimary>
+                        {roomIdWarn &&
+                            <Warning>{roomIdWarn}</Warning>
+                        }
+                    </Form>
+                }
+                
+                {/* ask for display color */}
+                {progress === 2 &&
+                    <Form onSubmit={join}>
+                    <Description>
+                        You are anonymous here! Select a color will make you unique.
+                    </Description>
+                        <InputColor label="Your Display Color" onInput={displayColorChange} />
+                        <ButtonPrimary type="submit" disabled={displayColor === "#000000"}>
+                            Join
+                        </ButtonPrimary>
+                        {displayColorWarn &&
+                            <Warning>{displayColorWarn}</Warning>
+                        }
+                    </Form>
+                }
             </div>
         </>
     )

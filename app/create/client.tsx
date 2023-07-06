@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import ButtonPrimary from "@/components/ButtonPrimary";
-import ButtonSecondary from "@/components/ButtonSecondary";
 import Warning from "@/components/Warning";
 import Description from "@/components/Description";
 import Form from "@/components/form";
@@ -30,18 +29,6 @@ export default () => {
         setAdminToken((e.target as HTMLInputElement).value);
     }
     
-    const reset = () => {
-        setSize(2);
-        setSizeWarn("");
-        setAdminToken("");
-        setAdminTokenWarn("");
-    }
-
-    const back = () => {
-        setProgress(progress-1);
-        reset();
-    }
-
     const next = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!(size >= 2 && size <= 10)) {
@@ -54,29 +41,37 @@ export default () => {
     const create = async (e: React.FormEvent) => {
         e.preventDefault();
         // TODO: check if admin token is valid
-
-        const res = await fetch("/api/create", {
-            method: "POST", body: JSON.stringify({
-                size: size
-            })
-        });
-
-        if (res.status === 201) {
-            push("/");
+        if (adminToken) {
+            setAdminTokenWarn("Token is invalid.");
 
         } else {
-            setAdminTokenWarn((await res.json()).message);
+            const res = await fetch("/api/create", {
+                method: "POST", body: JSON.stringify({
+                    size: size
+                })
+            });
+
+            if (res.status === 201) {
+                push("/");
+
+            } else {
+                setAdminTokenWarn((await res.json()).message);
+            }
         }
+
     }
 
 
     return (
         <>
-            <div>
+            <div className="px-12 text-lg">
                 {/* ask for room size */}
                 {progress === 1 &&
                     <div>
                         <Form onSubmit={next}>
+                            <Description>
+                                Enter the size of the room between values 2-10. 
+                            </Description>
                             <InputNumber label="Room Size" onInput={sizeChange} value={size} />
                             <ButtonPrimary type="submit" disabled={!size}>
                                 Next
@@ -84,9 +79,6 @@ export default () => {
                             {sizeWarn &&
                                 <Warning>{sizeWarn}</Warning>
                             }
-                            <Description>
-                                Enter the size of the room between values 2-10. 
-                            </Description>
                         </Form>
                     </div>
                 }
@@ -95,19 +87,16 @@ export default () => {
                 {progress === 2 &&
                     <div>
                         <Form onSubmit={create}>
+                            <Description>
+                                If you are not a admin, skip and create room as host.
+                            </Description>
                             <InputText label="Admin Token" onInput={adminTokenChange} required={false} />
-                            <ButtonSecondary onClick={back}>
-                                Back
-                            </ButtonSecondary>
                             <ButtonPrimary type="submit">
                                 {!adminToken ? "Skip" : "Create"}
                             </ButtonPrimary>
                             {adminTokenWarn &&
                                 <Warning>{adminTokenWarn}</Warning>
                             }
-                            <Description>
-                                If you are not a admin, skip and create room as host.
-                            </Description>
                         </Form>
                     </div>
                 }

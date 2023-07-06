@@ -7,13 +7,16 @@ interface InputNumberProps extends InputProps {
 }
 
 export default ({ onInput, label, required=true, value, min=2, max=10 }: InputNumberProps) => {
+
+    const classes = "default px-3 py-2 outline-none w-full";
+
     return (
-        <>
+        <div>
             {label &&
-                <div>
+                <div className="mb-2">
                     {label}
                 </div>}
-            <input type="number" onInput={onInput} value={value} min={min} max={max} required={required} />
-        </>
+            <input className={classes} type="number" onInput={onInput} value={value} min={min} max={max} required={required} />
+        </div>
     )
 }

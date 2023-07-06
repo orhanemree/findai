@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply
+    min-h-screen
+    flex
+    items-center
+    justify-center
+    bg-zinc-50
+}
+
+.default {
+    @apply
+    border border-black
+    rounded-md
+}
+
+a {
+    @apply
+    underline
+    text-emerald-800
+}
+
+
+/* number input*/
+::-webkit-color-swatch {
+    @apply
+    border-none
+    rounded-md
+}
+
+::-moz-color-swatch {
+    @apply
+    border-none
+    rounded-md
+}

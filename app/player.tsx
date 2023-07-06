@@ -3,17 +3,23 @@
 import { useState, useEffect } from "react";
 import firebase from "@/utils/firebase";
 import { getDatabase, ref, onValue, set } from "firebase/database";
-import { UserSchema, RoomSchema } from "@/types";
+import { RoomSchema } from "@/types";
+import { Message as MsgSchema } from "@/types";
 
 import Form from "@/components/form";
 import InputText from "@/components/form/InputText";
 import ButtonPrimary from "@/components/ButtonPrimary";
+import Description from "@/components/Description";
+import Message from "@/components/Message";
+import User from "@/components/user";
+import UserVote from "@/components/user/UserVote";
 
 interface Props {
     room: RoomSchema,
     roomId: string,
     userId: string
 }
+
 
 // initialize firebase rt databse
 firebase();
@@ -23,8 +29,9 @@ const db = getDatabase();
 export default ({ room, roomId, userId }: Props) => {
 
     const [room_, setRoom] = useState<RoomSchema>(room);
-    const [prompt, setPrompt] = useState("");
-    const [answer, setAnswer] = useState("");
+    const [prompt, setPrompt] = useState<string>("");
+    const [answer, setAnswer] = useState<string>("");
+    const [messages, setMessages] = useState<MsgSchema[]>([]);
 
     const relativeDBPath = `findai/rooms/${roomId}`;
 
@@ -33,7 +40,28 @@ export default ({ room, roomId, userId }: Props) => {
         onValue(ref(db, relativeDBPath), (snapshot: any) => {
             const data = snapshot.val() as RoomSchema;
             setRoom(data);
-        })
+            const newMessages: MsgSchema[] = data.users
+            .map(u => ({ userId: u.userId, content: u.answer, color: u.displayColor, type: "answer" } as MsgSchema))
+            .filter(m => m.content !== "");
+            if (data.prompt) {
+                const whosePrompt = data.users.map(u => u.prompt).indexOf(data.prompt);
+                newMessages.push({
+                    userId: "--no--id--room--prompt--",
+                    content: data.prompt,
+                    color: data.users[whosePrompt].displayColor, type: "prompt"
+                });
+            }
+            let updatedMessages = messages;
+            for (const msg of newMessages) {
+                const i = updatedMessages.findIndex(m => (
+                    m.userId === msg.userId && m.content === msg.content && m.color === msg.color
+                ));
+                if (i === -1) {
+                    updatedMessages.push(msg);
+                }
+            }
+            setMessages(updatedMessages);
+        });
     }, []);
 
     const promptChange = (e: React.ChangeEvent) => {
@@ -61,39 +89,90 @@ export default ({ room, roomId, userId }: Props) => {
         setAnswer("");
     }
 
+    const voted = async (uid: string) => {
+        await set(ref(db, `${userPath}/votedFor`), uid);
+    }
+
     return (
         <>
-            <div>Room Id: {roomId}</div>
-            {room_.started ? 
-                <>
-                    {room_.voting ?
-                        <>
-                            <div>Voting started</div>
-                        </>
-                    : 
-                        <>
-                            <div>{room_.prompt}</div>
-                            <Form onSubmit={sendAnswer}>
-                                <InputText label="Answer" onInput={answerChange}></InputText>
-                                <ButtonPrimary type="submit" disabled={!answer}>Send</ButtonPrimary>
-                            </Form>
-                        </>
-                    }
-                </>
+            {!room_.users[userIndex].ready ?
+                <Form onSubmit={ready}>
+                <Description>
+                    Each player will ask a prompt to everyone. Enter your prompt here.
+                </Description>
+                {/* ask for prompt */}
+                    <InputText label="Prompt" onInput={promptChange}></InputText>
+                    <ButtonPrimary type="submit" disabled={!prompt}>Ready</ButtonPrimary>
+                </Form>
             :
                 <>
-                    <Form onSubmit={ready}>
-                        <InputText label="Prompt" onInput={promptChange}></InputText>
-                        <ButtonPrimary type="submit" disabled={!prompt}>Ready</ButtonPrimary>
-                    </Form>
+                    {room_.started ? 
+                        <>
+                            <div className="py-12 max-w-[500px] min-h-screen grid grid-rows-[min, 1fr, auto]">
+                                <ul className="flex flex-col gap-3 mb-5">
+                                    {messages.map(m => (
+                                        <>
+                                            <li key={m.userId}>
+                                                <Message color={m.color} type={m.type}>
+                                                    {m.content}
+                                                </Message>
+                                            </li>
+                                        </>
+                                    ))}
+                                </ul>
+                                {room_.voting ?
+                                    <>
+                                        {!room_.users[userIndex].votedFor ?
+                                            <UserVote room={room_} voted={voted}
+                                            user={room_.users[userIndex]}></UserVote>
+
+                                        :
+                                            <div className="grid gap-5">
+                                                <Description>Voting End</Description>
+                                                <div className="flex items-center justify-center gap-3">
+                                                    <div>You voted for</div>
+                                                    <User user={
+                                                       room_.users[room_.users.map(u => u.userId).indexOf(room_.users[userIndex].votedFor)]
+                                                    } showRole={true}></User>
+                                                </div>
+                                                <div className="flex items-center justify-center gap-3">
+                                                    <div>Majority voted for</div>
+                                                    <User user={
+                                                       room_.users[room_.users.map(u => u.userId).indexOf(room_.gotMostVote)]
+                                                    } showRole={true}></User>
+                                                </div>
+                                                <div className="flex items-center justify-center gap-3">
+                                                    <div>The AI was</div>
+                                                    <User user={
+                                                       room_.users[0]
+                                                    } showRole={true}></User>
+                                                </div>
+                                                <div>
+                                                    {room_.playersWon ? "Players detected the AI! Congrats!" : "Players couldn't detect the AI :( You can play again."}
+                                                </div>
+                                            </div>
+                                        }
+                                    </>
+                                : 
+                                    <Form onSubmit={sendAnswer}>
+                                        {/* ask for answer */}
+                                        <div className="flex items-end justify-center gap-2">
+                                            <InputText label="Answer" value={answer} onInput={answerChange}></InputText>
+                                            <ButtonPrimary type="submit" disabled={room_.users[userIndex].answer !== ""}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960"><path d="M120-160v-640l760 320-760 320Zm60-93 544-227-544-230v168l242 62-242 60v167Zm0 0v-457 457Z"/></svg>
+                                            </ButtonPrimary>
+                                        </div>
+                                    </Form>
+                                }
+                            </div>
+                        </>
+                    :
+                        <Description>
+                            Waiting for the game start.
+                        </Description>
+                    }
                 </>
             }
-            <br />
-            <div>
-                <pre>
-                    {JSON.stringify(room_, null, 2)}
-                </pre>
-            </div>
         </>
     )
 }

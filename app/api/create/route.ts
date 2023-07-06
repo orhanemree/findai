@@ -42,6 +42,7 @@ export const POST = async (req: Request) => {
             roomId: roomId,
             size: body.size+1,
             population: 1, // ai by default
+            started: false,
             hostId: userId,
             prompt: "",
             voting: false,
@@ -51,12 +52,14 @@ export const POST = async (req: Request) => {
                     role: "ai",
                     userId: "--no--id--ai--",
                     displayColor: "#"+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, "0"), // random hex color
-                    ready: false,
-                    prompt: "",
+                    ready: true,
+                    prompt: "ai prompt",
                     answer: "",
                     votedFor: ""
                 }
-            }
+            },
+            gotMostVote: "",
+            playersWon: false
         });
 
         const date = new Date();

@@ -16,7 +16,15 @@ export interface FormProps {
 export interface InputProps {
     onInput?: React.FormEventHandler,
     label?: any,
-    required?: boolean
+    required?: boolean,
+}
+
+
+export interface Message {
+    userId: string,
+    content: string,
+    color: string,
+    type: "prompt" | "answer"
 }
 
 
@@ -39,5 +47,7 @@ export interface RoomSchema {
     hostId: string,
     prompt: string,
     voting: boolean,
-    users: Array<UserSchema> | []
+    users: Array<UserSchema>,
+    gotMostVote: string, // uid of user
+    playersWon: boolean
 }

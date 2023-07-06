@@ -19,7 +19,7 @@ export default () => {
 
     return (
         <>
-            <div>
+            <div className="grid gap-5 text-xl">
                 <ButtonPrimary onClick={redirectJoin}>
                     Join a Room
                 </ButtonPrimary>

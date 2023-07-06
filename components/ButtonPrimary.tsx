@@ -1,11 +1,13 @@
 import { ButtonProps } from "@/types";
 
 export default ({ children, onClick, disabled=false, type="button" }: ButtonProps) => {
+
+    const classes = `default px-3 py-2 \
+${!disabled ? "bg-emerald-600 cursor-pointer" : "bg-zinc-200 opacity-60"}`;
+
     return (
-        <>
-        <button className="bg-teal-900" onClick={onClick} type={type} disabled={disabled}>
+        <button className={classes} onClick={onClick} type={type} disabled={disabled}>
             {children}
         </button>
-        </>
     )
 }

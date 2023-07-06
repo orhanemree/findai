@@ -53,7 +53,9 @@ export const POST = async (req: Request) => {
             )
         }
 
-        await checkRoom(body.roomId);
+        const data = await checkRoom(body.roomId);
+        // if room is not available and function returned eror status
+        if (data instanceof Response) return data;
 
         return new Response(
             JSON.stringify({ message: "Room is available." })
