@@ -51,7 +51,7 @@ export default ({ room, roomId, userId }: Props) => {
         }
     }
 
-    const randomSortKey = Math.floor(Math.random() * (0 - 5) + 5);
+    const key = new Date().getDate();
 
 
     const next = async () => {
@@ -60,8 +60,9 @@ export default ({ room, roomId, userId }: Props) => {
             for (let i = 0; i < room_.population; ++i) {
                 await set(ref(db,`${relativeDBPath}/users/${i}/answer`), "");
             }
-    
-            const prompt = room_.users.map(u => u.prompt).sort((a, b) => a[randomSortKey].localeCompare(b[randomSortKey]))[currPrompt];
+            
+            let prompts = room_.users.map(u => u.prompt);
+            const prompt = prompts.sort((a: any, b: any) => ((key * a) % prompts.length) - ((key * b) % prompts.length))[currPrompt];
             // update current prompt in database so player can see
             await set(ref(db,`${relativeDBPath}/prompt`), prompt);
     
@@ -131,7 +132,7 @@ export default ({ room, roomId, userId }: Props) => {
                         :
                         // if players voted
                             <ButtonPrimary onClick={showResults} disabled={
-                                !(room_.users.filter(u => u.votedFor === "").length === 0)
+                                (!(room_.users.filter(u => u.votedFor === "").length === 0) || !!room_.gotMostVote)
                             }>Results</ButtonPrimary>
                         }
                     </>

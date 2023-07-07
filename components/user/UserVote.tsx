@@ -10,11 +10,11 @@ import Description from "../Description";
 
 export default ({ room, user, voted }: { room: RoomSchema, user: UserSchema, voted: any }) => {
 
-    const [users, setUsers] = useState<UserSchema[]>([]);
+    const [users, setUsers] = useState<UserSchema[]>([...room.users].sort(() => 0.5 - Math.random()));
 
-    useEffect(() => {
-        setUsers([...room.users].sort(() => 0.5 - Math.random()));
-    }, []);
+    // useEffect(() => {
+    //     setUsers();
+    // }, []);
 
 
     return (

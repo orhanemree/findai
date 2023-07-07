@@ -1,5 +1,6 @@
 "use client"
 
+import { cookies } from "next/headers";
 import { useState, useEffect } from "react";
 import firebase from "@/utils/firebase";
 import { getDatabase, ref, onValue, set } from "firebase/database";
@@ -96,23 +97,27 @@ export default ({ room, roomId, userId }: Props) => {
     return (
         <>
             {!room_.users[userIndex].ready ?
-                <Form onSubmit={ready}>
-                <Description>
-                    Each player will ask a prompt to everyone. Enter your prompt here.
-                </Description>
-                {/* ask for prompt */}
-                    <InputText label="Prompt" onInput={promptChange}></InputText>
-                    <ButtonPrimary type="submit" disabled={!prompt}>Ready</ButtonPrimary>
-                </Form>
+                <div className="px-12 text-lg">
+                    {/* ask for prompt */}
+                    <Form onSubmit={ready}>
+                        <Description>
+                            Each player will ask a prompt to everyone. Enter your prompt here.
+                        </Description>
+                        <InputText label="Prompt" onInput={promptChange}></InputText>
+                        <ButtonPrimary type="submit" disabled={!prompt}>Ready</ButtonPrimary>
+                    </Form>
+                </div>
             :
-                <>
+                <div className="grid px-12">
                     {room_.started ? 
                         <>
-                            <div className="py-12 max-w-[500px] min-h-screen grid grid-rows-[min, 1fr, auto]">
+                            <div className="py-12 max-w-[500px] min-h-screen grid grid-rows-[min,1fr,auto]">
                                 <ul className="flex flex-col gap-3 mb-5">
-                                    {messages.map(m => (
+                                    {messages.map((m, i) => (
                                         <>
-                                            <li key={m.userId}>
+                                            <li key={m.userId} className={
+                                                ((m.type === "prompt" && i !== 0) ? "mt-8" : "")
+                                            }>
                                                 <Message color={m.color} type={m.type}>
                                                     {m.content}
                                                 </Message>
@@ -122,33 +127,34 @@ export default ({ room, roomId, userId }: Props) => {
                                 </ul>
                                 {room_.voting ?
                                     <>
-                                        {!room_.users[userIndex].votedFor ?
+                                        {!room_.gotMostVote ?
                                             <UserVote room={room_} voted={voted}
                                             user={room_.users[userIndex]}></UserVote>
 
-                                        :
-                                            <div className="grid gap-5">
+                                       :
+                                            <div className="grid gap-2">
                                                 <Description>Voting End</Description>
-                                                <div className="flex items-center justify-center gap-3">
-                                                    <div>You voted for</div>
+                                                <div className="grid grid-cols-[1fr,auto]">
+                                                    <div className="flex items-center">You voted for: </div>
                                                     <User user={
                                                        room_.users[room_.users.map(u => u.userId).indexOf(room_.users[userIndex].votedFor)]
                                                     } showRole={true}></User>
                                                 </div>
-                                                <div className="flex items-center justify-center gap-3">
-                                                    <div>Majority voted for</div>
+                                                <div className="grid grid-cols-[1fr,auto]">
+                                                    <div className="flex items-center">Majority voted for: </div>
                                                     <User user={
                                                        room_.users[room_.users.map(u => u.userId).indexOf(room_.gotMostVote)]
                                                     } showRole={true}></User>
                                                 </div>
-                                                <div className="flex items-center justify-center gap-3">
-                                                    <div>The AI was</div>
+                                                <div className="grid grid-cols-[1fr,auto]">
+                                                    <div className="flex items-center">The AI was: </div>
                                                     <User user={
                                                        room_.users[0]
                                                     } showRole={true}></User>
                                                 </div>
-                                                <div>
-                                                    {room_.playersWon ? "Players detected the AI! Congrats!" : "Players couldn't detect the AI :( You can play again."}
+                                                <div className="mt-5 text-xl text-emerald-900 text-center">
+                                                    {room_.playersWon ? "Players found the AI! Congrats!" : "Players couldn't find the AI."}
+                                                    <a href="/join">You can play again.</a>
                                                 </div>
                                             </div>
                                         }
@@ -171,7 +177,7 @@ export default ({ room, roomId, userId }: Props) => {
                             Waiting for the game start.
                         </Description>
                     }
-                </>
+                </div>
             }
         </>
     )
