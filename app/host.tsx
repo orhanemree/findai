@@ -29,6 +29,9 @@ export default ({ room, roomId, userId }: Props) => {
 
     // listen firebase realtime database and update room_ data
     useEffect(() => {
+
+        AIgetPrompt();
+        
         onValue(ref(db, relativeDBPath), (snapshot: any) => {
             const data = snapshot.val() as RoomSchema;
             setRoom(data);
@@ -69,7 +72,7 @@ export default ({ room, roomId, userId }: Props) => {
             setCurrPrompt(currPrompt+1);
 
             // send the prompt to ai and save the answer to db
-            const AIanswer = AIgetAnswer(prompt);
+            const AIanswer = await AIgetAnswer(prompt);
             await set(ref(db,`${relativeDBPath}/users/0/answer`), AIanswer); // first user is the ai b default
 
         } else {
@@ -106,8 +109,27 @@ export default ({ room, roomId, userId }: Props) => {
 
 
     // ai functions
-    const AIgetAnswer = (prompt: string) => {
-        return `answer to prompt ${prompt}`;
+
+    const AIgetPrompt = async () => {
+
+        // get prompt from ai
+        const AIprompt = await ((await fetch("/api/ai", {
+            method: "POST", body: JSON.stringify({ type: "prompt" })
+        })).text());
+
+        // set ai prompt to db
+        await set(ref(db,`${relativeDBPath}/users/0/prompt`), AIprompt);
+        await set(ref(db,`${relativeDBPath}/users/0/ready`), true);
+    }
+
+    const AIgetAnswer = async (prompt: string) => {
+        const randomWaitTime = Math.floor(Math.random() * (15 - 5 + 1) + 5);
+        await new Promise(r => setTimeout(r, randomWaitTime*1000));
+        const AIanswer = await ((await fetch("/api/ai", {
+            method: "POST", body: JSON.stringify({ type: "answer", prompt: prompt })
+        })).text());
+
+        return AIanswer!;
     }
 
     const AIvote = () => {

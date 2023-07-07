@@ -153,7 +153,7 @@ export default ({ room, roomId, userId }: Props) => {
                                                     } showRole={true}></User>
                                                 </div>
                                                 <div className="mt-5 text-xl text-emerald-900 text-center">
-                                                    {room_.playersWon ? "Players found the AI! Congrats!" : "Players couldn't find the AI."}
+                                                    {room_.playersWon ? "Players found the AI! Congrats! " : "Players couldn't find the AI. "}
                                                     <a href="/join">You can play again.</a>
                                                 </div>
                                             </div>

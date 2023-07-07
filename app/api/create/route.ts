@@ -36,7 +36,7 @@ export const POST = async (req: Request) => {
     const userId = randomUUID(); // random user id for host
 
     try {
-
+        console.log(body.AIprompt);
         // create new room in database
         await set(ref(db, `findai/rooms/${roomId}`), {
             roomId: roomId,
@@ -52,8 +52,8 @@ export const POST = async (req: Request) => {
                     role: "ai",
                     userId: "--no--id--ai--",
                     displayColor: "#"+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, "0"), // random hex color
-                    ready: true,
-                    prompt: "ai prompt",
+                    ready: false,
+                    prompt: "",
                     answer: "",
                     votedFor: ""
                 }

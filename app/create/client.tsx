@@ -45,6 +45,7 @@ export default () => {
             setAdminTokenWarn("Token is invalid.");
 
         } else {
+            // create new room in db
             const res = await fetch("/api/create", {
                 method: "POST", body: JSON.stringify({
                     size: size
@@ -53,7 +54,6 @@ export default () => {
 
             if (res.status === 201) {
                 push("/");
-
             } else {
                 setAdminTokenWarn((await res.json()).message);
             }
