@@ -8,7 +8,7 @@ interface InputNumberProps extends InputProps {
 
 export default ({ onInput, label, required=true, value, min=2, max=10 }: InputNumberProps) => {
 
-    const classes = "default px-3 py-2 outline-none w-full";
+    const classes = "default px-3 py-3 outline-none w-full";
 
     return (
         <div>

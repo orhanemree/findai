@@ -6,7 +6,7 @@ interface InputTextProps extends InputProps {
 
 export default ({ onInput, label, value, required=true }: InputTextProps) => {
 
-    const classes = "default px-3 py-2 outline-none w-full";
+    const classes = "default px-3 py-3 outline-none w-full";
 
     return (
         <div>
