@@ -9,12 +9,19 @@ const db = getDatabase();
 
 
 export const POST = async (req: Request) => {
+
+    const lang = cookies().get("language")?.value ?? "EN";
+
     const body = await req.json();
 
     // return error if it's bad request
     if (!body.size || body.size < 2 || body.size > 10) {
         return new Response(
-            JSON.stringify({ error: "400 Bad Request", message: "Body must contain size property between values 2 and 10." }),
+            JSON.stringify({
+                error: "400 Bad Request",
+                message: lang !== "TR" ? "Body must contain size property between values 2 and 10."
+                    : "Body, 2 ile 10 arasında boyut değeri içermelidir."
+            }),
             {
                 status: 400
             }

@@ -1,10 +1,15 @@
+import { cookies } from "next/headers";
+
 const URL = "https://api.openai.com/v1/chat/completions";
 
-const LANGUAGE = "turkish";
-const PROMPT_PROMPT = `you are in a deception q&a game. ask a question like a human to other players in the game. do some miswrites like human texts. ask in ${LANGUAGE}. only reply with the question.`;
-const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence. asnwer question as a human. answer in ${LANGUAGE}. only reply with the answer.`;
 
 export const POST = async (req: Request) => {
+    
+    const lang = cookies().get("language")?.value ?? "EN";
+    const LANGUAGE = lang !== "TR" ? "english" : "turkish";
+    const PROMPT_PROMPT = `you are in a deception q&a game. ask a question like a human to other players in the game. do some miswrites like human texts. ask in ${LANGUAGE}. only reply with the question.`;
+    const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence. asnwer question as a human. answer in ${LANGUAGE}. only reply with the answer.`;
+    
     const body = await req.json();
 
     if (body.type === "prompt") {

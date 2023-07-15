@@ -1,37 +1,34 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
+import { Context } from "@/context/Context";
 import firebase from "@/utils/firebase";
 import { getDatabase, ref, onValue, set } from "firebase/database";
-import { UserSchema, RoomSchema } from "@/types";
+import { RoomSchema, UserResult } from "@/types";
 
 import ButtonPrimary from "@/components/ButtonPrimary";
-import User from "@/components/user";
 import UserDetailed from "@/components/user/UserDetailed";
-
-interface Props {
-    room: RoomSchema,
-    roomId: string,
-    userId: string
-}
 
 // initialize firebase rt database
 firebase();
 const db = getDatabase();
 
 
-export default ({ room, roomId, userId }: Props) => {
+export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, userId: string }) => {
+
+    const { lang } = useContext(Context) as { lang: string };
 
     const [room_, setRoom] = useState<RoomSchema>(room);
     const [currPrompt, setCurrPrompt] = useState<number>(0);
 
     const relativeDBPath = `findai/rooms/${roomId}`;
 
-    // listen firebase realtime database and update room_ data
     useEffect(() => {
-
+        
+        // get prompt from ai
         AIgetPrompt();
         
+        // listen firebase realtime database and update room_ data
         onValue(ref(db, relativeDBPath), (snapshot: any) => {
             const data = snapshot.val() as RoomSchema;
             setRoom(data);
@@ -56,7 +53,6 @@ export default ({ room, roomId, userId }: Props) => {
 
     const key = new Date().getDate();
 
-
     const next = async () => {
         if (currPrompt < room_.population) {
             // clear all answers from players
@@ -65,7 +61,8 @@ export default ({ room, roomId, userId }: Props) => {
             }
             
             let prompts = room_.users.map(u => u.prompt);
-            const prompt = prompts.sort((a: any, b: any) => ((key * a) % prompts.length) - ((key * b) % prompts.length))[currPrompt];
+            const prompt = prompts.sort((a: any, b: any) =>
+                ((key * a) % prompts.length) - ((key * b) % prompts.length))[currPrompt];
             // update current prompt in database so player can see
             await set(ref(db,`${relativeDBPath}/prompt`), prompt);
     
@@ -86,12 +83,6 @@ export default ({ room, roomId, userId }: Props) => {
     }
 
     const showResults = async () => {
-        interface UserResult {
-            userId: string,
-            votedFor: string,
-            votes: number
-        }
-
         // increment votes for each vote to user
         const users: UserResult[] = room_.users.map(u => ({ userId: u.userId, votes: 0, votedFor: u.votedFor }));
         for (const user of users) {
@@ -140,9 +131,9 @@ export default ({ room, roomId, userId }: Props) => {
     return (
         <div className="py-12">
             <div className="absolute top-5 left-5 default p-3 bg-zinc-100 text-sm">
-                Room ID: <span>{roomId}</span>
+                {lang !== "TR" ? "Room" : "Oda"} ID: <span>{roomId}</span>
             </div>
-            <UserDetailed room={room_}></UserDetailed>
+            <UserDetailed room={room_} />
             <div className="text-center mt-5">
                 {room_.started ?
                     <>
@@ -150,19 +141,20 @@ export default ({ room, roomId, userId }: Props) => {
                             // if players answered
                             <ButtonPrimary onClick={next} disabled={
                                 !(room_.users.filter(u => u.answer === "").length === 0)
-                            }>{currPrompt === room_.population ? "Voting" : "Next"}</ButtonPrimary>
+                            }>{currPrompt === room_.population ? (lang !== "TR" ? "Voting" : "Oylama")
+                                : (lang !== "TR" ? "Next" : "Devam")}</ButtonPrimary>
                         :
                         // if players voted
                             <ButtonPrimary onClick={showResults} disabled={
                                 (!(room_.users.filter(u => u.votedFor === "").length === 0) || !!room_.gotMostVote)
-                            }>Results</ButtonPrimary>
+                            }>{lang !== "TR" ? "Results" : "Sonuçlar"}</ButtonPrimary>
                         }
                     </>
                 :
                     // if ready to start
                     <ButtonPrimary onClick={start} disabled={
                         !(room_.population === room_.size && room_.users.filter(u => u.ready && u.prompt).length === room_.size)
-                    }>Start</ButtonPrimary>
+                    }>{lang !== "TR" ? "Start" : "Başlat"}</ButtonPrimary>
                 }
             </div>
         </div>

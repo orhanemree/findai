@@ -10,12 +10,19 @@ const db = getDatabase();
 
 // check if room is available. if it is, return current data of room. if not, return error
 const checkRoom = async (roomId: string) => {
+    
+    const lang = cookies().get("language")?.value ?? "EN";
+
     const snapshot = await get(child(ref(db), `findai/rooms/${roomId}`))
     
     // check if the room exists
     if (!snapshot.exists()) {
         return new Response(
-            JSON.stringify({ error: "404 Not Found", message: "Room not found." }),
+            JSON.stringify({
+                error: "404 Not Found",
+                message: lang !== "TR" ? "Room not found."
+                    : "Oda bulunamadı."
+            }),
             {
                 status: 404
             }
@@ -27,7 +34,11 @@ const checkRoom = async (roomId: string) => {
     // check if the room is not full of players
     if (data.size <= data.population) {
         return new Response(
-            JSON.stringify({ error: "409 Conflict", message: "Room is full of players." }),
+            JSON.stringify({
+                error: "409 Conflict",
+                message: lang !== "TR" ? "Room is full of players."
+                    : "Oda dolu."
+            }),
             {
                 status: 409
             }
@@ -40,13 +51,19 @@ const checkRoom = async (roomId: string) => {
 
 export const POST = async (req: Request) => {
 
+    const lang = cookies().get("language")?.value ?? "EN";
+
     const body = await req.json();
 
     if (body.type === "check") {
 
         if (!body.roomId) {
             return new Response(
-                JSON.stringify({ error: "400 Bad Request", message: "Body must contain roomId." }),
+                JSON.stringify({
+                    error: "400 Bad Request",
+                    message: lang !== "TR" ? "Body must contain roomId."
+                        : "Body roomId içermelidir."
+                }),
                 {
                     status: 400
                 }
@@ -66,7 +83,11 @@ export const POST = async (req: Request) => {
 
         if (!body.roomId || !body.displayColor) {
             return new Response(
-                JSON.stringify({ error: "400 Bad Request", message: "Body must contain roomId and displayColor." }),
+                JSON.stringify({
+                    error: "400 Bad Request",
+                    message: lang !== "TR" ? "Body must contain roomId and displayColor."
+                        : "Body roomId ve displayColor içermelidir."
+                }),
                 {
                     status: 400
                 }
@@ -132,7 +153,11 @@ export const POST = async (req: Request) => {
 
     else {
         return new Response(
-            JSON.stringify({ error: "400 Bad Request", message: "Type value in body must be check or record." }),
+            JSON.stringify({
+                error: "400 Bad Request",
+                message: lang !== "TR" ? "Type value in body must be check or record."
+                    : "Type değeri check ya da record olmalıdır."
+            }),
             {
                 status: 400
             }

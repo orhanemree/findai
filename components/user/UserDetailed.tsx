@@ -1,9 +1,15 @@
+"use client";
+
+import { useContext } from "react";
+import { Context } from "@/context/Context";
 import { RoomSchema } from "@/types";
 
 import User from ".";
 
 
 export default ({ room }: { room: RoomSchema }) => {
+
+    const { lang } = useContext(Context) as { lang: string };
 
     return (
         <>
@@ -17,17 +23,20 @@ export default ({ room }: { room: RoomSchema }) => {
                                     <>
                                     {room.voting ?
                                         <div>
-                                            {u.votedFor ? "Voted" : "Waiting"}
+                                            {u.votedFor ? (lang !== "TR" ? "Voted" : "Oyladı")
+                                                : (lang !== "TR" ? "Waiting" : "Bekleniyor")}
                                         </div>
                                     :
                                         <div>
-                                            {u.answer ? "Answered" : "Waiting"}
+                                            {u.answer ? (lang !== "TR" ? "Answered" : "Yanıtladı")
+                                                : (lang !== "TR" ? "Waiting" : "Bekleniyor")}
                                         </div>
                                     }
                                     </>
                                 :
                                     <div>
-                                        {u.ready ? "Ready" : "Waiting"}
+                                        {u.ready ? (lang !== "TR" ? "Ready" : "Hazır")
+                                            : (lang !== "TR" ? "Waiting" : "Bekleniyor")}
                                     </div>
                                 }
                             </span>

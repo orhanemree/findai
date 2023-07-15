@@ -51,3 +51,10 @@ export interface RoomSchema {
     gotMostVote: string, // uid of user
     playersWon: boolean
 }
+
+
+export interface UserResult {
+    userId: string,
+    votedFor: string,
+    votes: number
+}

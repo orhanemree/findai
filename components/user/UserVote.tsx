@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useContext, useState } from "react";
+import { Context } from "@/context/Context";
 import { RoomSchema, UserSchema } from "@/types";
 
 import User from ".";
@@ -10,12 +11,9 @@ import Description from "../Description";
 
 export default ({ room, user, voted }: { room: RoomSchema, user: UserSchema, voted: any }) => {
 
+    const { lang } = useContext(Context) as { lang: string };
+
     const [users, setUsers] = useState<UserSchema[]>([...room.users].sort(() => 0.5 - Math.random()));
-
-    // useEffect(() => {
-    //     setUsers();
-    // }, []);
-
 
     return (
         <div>
@@ -29,7 +27,7 @@ export default ({ room, user, voted }: { room: RoomSchema, user: UserSchema, vot
                                     <ButtonSecondary onClick={() => {voted(u.userId)}} disabled={
                                         !!user.votedFor
                                     }>
-                                        Vote
+                                        {lang !== "TR" ? "Vote" : "Oyla"}
                                     </ButtonSecondary>
                                 </span>
                             </li>
@@ -39,7 +37,11 @@ export default ({ room, user, voted }: { room: RoomSchema, user: UserSchema, vot
             </ul>
             <div className="text-center">
                 <Description>
-                    Vote who you think is the AI.
+                    {lang !== "TR" ?
+                        "Vote who you think is the AI."
+                    : 
+                        "Kimin yapay zeka olduğunu düşünüyorsan ona oy ver."
+                    }
                 </Description>
             </div>
         </div>
