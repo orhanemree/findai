@@ -3,6 +3,7 @@
 import { useContext, useState } from "react";
 import { Context } from "@/context/Context";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 import ButtonPrimary from "@/components/ButtonPrimary";
 import Warning from "@/components/Warning";
@@ -66,55 +67,59 @@ export default () => {
     }
 
 
-    // ask for room size
-    if (progress === 1) {
-        return (
-            <div className="px-12 text-lg">
-                <Form onSubmit={next}>
-                    <Description>
-                        {lang !== "TR" ?
-                            "Enter the size of the room between values 2-10. "
-                        : 
-                            "2 ile 10 arasında oda boyutu gir."
+    return (
+        <div className="px-12 text-lg">
+            {progress === 1 &&
+                <motion.div
+                    initial={{ opacity: 0, translateY: 30 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                >
+                    <Form onSubmit={next}>
+                        {/* ask for room size */}
+                        <Description>
+                            {lang !== "TR" ?
+                                "Enter the size of the room between values 2-10. "
+                            : 
+                                "2 ile 10 arasında oda boyutu gir."
+                            }
+                        </Description>
+                        <InputNumber label={lang !== "TR" ? "Room Size" : "Oda Boyutu"}
+                            onInput={sizeChange} value={size} />
+                        <ButtonPrimary type="submit" disabled={!size}>
+                            {lang !== "TR" ? "Next" : "Devam"}
+                        </ButtonPrimary>
+                        {sizeWarn &&
+                            <Warning>{sizeWarn}</Warning>
                         }
-                    </Description>
-                    <InputNumber label={lang !== "TR" ? "Room Size" : "Oda Boyutu"}
-                        onInput={sizeChange} value={size} />
-                    <ButtonPrimary type="submit" disabled={!size}>
-                        {lang !== "TR" ? "Next" : "Devam"}
-                    </ButtonPrimary>
-                    {sizeWarn &&
-                        <Warning>{sizeWarn}</Warning>
-                    }
-                </Form>
-            </div>
-        )
-    }
-
-
-    // ask for admin token
-    if (progress === 2) {
-        return (
-            <div className="px-12 text-lg">
-                <Form onSubmit={create}>
-                    <Description>
-                        {lang !== "TR" ?
-                            "If you are not a admin, skip and create room as host."
-                        : 
-                            "Eğer bir yönetici değilsen atla ve oda sahibi olarak oluştur."
+                    </Form>
+                </motion.div>
+            }
+            {progress === 2 &&
+                <motion.div
+                    initial={{ opacity: 0, translateY: 30 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                >
+                    <Form onSubmit={create}>
+                        {/* ask for admin token */}
+                        <Description>
+                            {lang !== "TR" ?
+                                "If you are not a admin, skip and create room as host."
+                            : 
+                                "Eğer bir yönetici değilsen atla ve oda sahibi olarak oluştur."
+                            }
+                        </Description>
+                        <InputText label={lang !== "TR" ? "Admin Token" : "Yönetici Jetonu"} onInput={adminTokenChange}
+                            required={false} />
+                        <ButtonPrimary type="submit">
+                            {!adminToken ? (lang !== "TR" ? "Skip" : "Atla")
+                                : (lang !== "TR" ? "Create" : "Oluştur")}
+                        </ButtonPrimary>
+                        {adminTokenWarn &&
+                            <Warning>{adminTokenWarn}</Warning>
                         }
-                    </Description>
-                    <InputText label={lang !== "TR" ? "Admin Token" : "Yönetici Jetonu"} onInput={adminTokenChange}
-                        required={false} />
-                    <ButtonPrimary type="submit">
-                        {!adminToken ? (lang !== "TR" ? "Skip" : "Atla")
-                            : (lang !== "TR" ? "Create" : "Oluştur")}
-                    </ButtonPrimary>
-                    {adminTokenWarn &&
-                        <Warning>{adminTokenWarn}</Warning>
-                    }
-                </Form>
-            </div>
-        )
-    }
+                    </Form>
+                </motion.div>
+            }
+        </div>
+    )
 }

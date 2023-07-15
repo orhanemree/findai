@@ -4,8 +4,9 @@ A host, couple of players and a secret AI enter one chat room. Each player (and 
 Read [fun facts](fun-facts.md) if you are interested in :)
 
 ## Technologies
-* Tailwind CSS as CSS framework.
-* Next.js with TypeScript as Fullstack framework.
+* Tailwind CSS
+* Framer Motion for animations.
+* Next.js with TypeScript
 * Firebase as Realtime Database.
 * ChatGPT as the AI.
 

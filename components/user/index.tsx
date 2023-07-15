@@ -1,5 +1,5 @@
 import { UserSchema } from "@/types";
-
+import { motion } from "framer-motion";
 
 export default ({ user, showRole=false }: { user: UserSchema, showRole?: boolean } ) => {
 
@@ -7,8 +7,11 @@ export default ({ user, showRole=false }: { user: UserSchema, showRole?: boolean
 flex items-center justify-center font-bold";
 
     return (
-        <div className={classes} style={{backgroundColor: user.displayColor!+"80"}}>
+        <motion.div className={classes} style={{backgroundColor: user.displayColor!+"80"}}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+        >
             {showRole && (user.role === "ai" ? "ai" : "pl")}
-        </div>
+        </motion.div>
     )
 }

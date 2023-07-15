@@ -6,6 +6,7 @@ import firebase from "@/utils/firebase";
 import { getDatabase, ref, onValue, set } from "firebase/database";
 import { RoomSchema } from "@/types";
 import { Message as MsgSchema } from "@/types";
+import { motion } from "framer-motion";
 
 import Form from "@/components/form";
 import InputText from "@/components/form/InputText";
@@ -99,7 +100,10 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
     // ask for prompt
     if (!room_.users[userIndex].ready) {
         return (
-            <div className="px-12 text-lg">
+            <motion.div className="px-12 text-lg"
+                initial={{ opacity: 0, translateY: 30 }}
+                animate={{ opacity: 1, translateY: 0 }}
+            >
                 <Form onSubmit={ready}>
                     <Description>
                         {lang !== "TR" ? 
@@ -113,7 +117,7 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
                         {lang !== "TR" ? "Ready" : "Hazır"}
                     </ButtonPrimary>
                 </Form>
-            </div>
+            </motion.div>
         )
     }
 

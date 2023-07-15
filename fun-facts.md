@@ -5,3 +5,4 @@
 * That's my first React project also. You know... Vue...
 * That's the first project I used ChatGPT API in it. 
 * At the beginning i wanted to use Supabase as database but that was kinda complicated for me. It was like i had to check auth states. but I wouldn't like to make a registration system and finally moved on with Firebase.
+* Andd that is my first app I add animations to it. Thanks to Framer Motion, it makes it so easy.

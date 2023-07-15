@@ -3,6 +3,7 @@
 import { useContext, useState } from "react";
 import { Context } from "@/context/Context";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 import Form from "@/components/form";
 import Description from "@/components/Description";
@@ -73,56 +74,59 @@ export default () => {
         }
     }
 
-
-    // ask for room id
-    if (progress === 1) {
-        return (
-            <div className="px-12 text-lg">
-                <Form onSubmit={next}>
-                    <Description>
-                    {lang !== "TR" ? 
-                        <>Enter the room ID the host gave you. If you are the host,&nbsp;
-                        <a href="/create">create</a> new room.</>
-                    :
-                        <>Oda sahibinin verdiği oda ID gir. Eğer oda sahibi sensen yeni oda&nbsp;
-                        <a href="/create">oluştur</a>.</>
-                    }
-                    </Description>
-                    <InputText label={lang !== "TR" ? "Room ID" : "Oda ID"} onInput={roomIdChange} />
-                    <ButtonPrimary type="submit" disabled={!roomId}>
-                    {lang !== "TR" ? "Next" : "Devam"}
-                    </ButtonPrimary>
-                    {roomIdWarn &&
-                        <Warning>{roomIdWarn}</Warning>
-                    }
-                </Form>
-            </div>
-        )
-    }
-
-
-    // ask for display color
-    if (progress === 2) {
-        return (
-            <div className="px-12 text-lg">
-                <Form onSubmit={join}>
-                    <Description>
+    return (
+        <div className="px-12 text-lg">
+            {progress === 1 &&
+                <motion.div
+                initial={{ opacity: 0, translateY: 30 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                >
+                    <Form onSubmit={next}>
+                        {/* ask for room id */}
+                        <Description>
                         {lang !== "TR" ? 
-                            "You are anonymous here! Select a color will make you unique."
-                        : 
-                            "Burada anonimsin! Seni benzersiz kılacak bir renk seç."
+                            <>Enter the room ID the host gave you. If you are the host,&nbsp;
+                            <a href="/create">create</a> new room.</>
+                        :
+                            <>Oda sahibinin verdiği oda ID gir. Eğer oda sahibi sensen yeni oda&nbsp;
+                            <a href="/create">oluştur</a>.</>
                         }
-                    </Description>
-                    <InputColor label={lang !== "TR" ? "Display Color" : "Renk"}
-                        onInput={displayColorChange} />
-                    <ButtonPrimary type="submit" disabled={displayColor === "#000000"}>
-                        {lang !== "TR" ? "Join" : "Katıl"}
-                    </ButtonPrimary>
-                    {displayColorWarn &&
-                        <Warning>{displayColorWarn}</Warning>
-                    }
-                </Form>
-            </div>
-        )
-    }
+                        </Description>
+                        <InputText label={lang !== "TR" ? "Room ID" : "Oda ID"} onInput={roomIdChange} />
+                        <ButtonPrimary type="submit" disabled={!roomId}>
+                        {lang !== "TR" ? "Next" : "Devam"}
+                        </ButtonPrimary>
+                        {roomIdWarn &&
+                            <Warning>{roomIdWarn}</Warning>
+                        }
+                    </Form>
+                </motion.div>
+            }
+            {progress === 2 &&
+                <motion.div
+                initial={{ opacity: 0, translateY: 30 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                >
+                    <Form onSubmit={join}>
+                        {/* ask for display color */}
+                        <Description>
+                            {lang !== "TR" ? 
+                                "You are anonymous here! Select a color will make you unique."
+                            : 
+                                "Burada anonimsin! Seni benzersiz kılacak bir renk seç."
+                            }
+                        </Description>
+                        <InputColor label={lang !== "TR" ? "Display Color" : "Renk"}
+                            onInput={displayColorChange} />
+                        <ButtonPrimary type="submit" disabled={displayColor === "#000000"}>
+                            {lang !== "TR" ? "Join" : "Katıl"}
+                        </ButtonPrimary>
+                        {displayColorWarn &&
+                            <Warning>{displayColorWarn}</Warning>
+                        }
+                    </Form>
+                </motion.div>
+            }
+        </div>
+    )
 }
