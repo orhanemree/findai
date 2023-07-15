@@ -7,8 +7,15 @@ export const POST = async (req: Request) => {
     
     const lang = cookies().get("language")?.value ?? "EN";
     const LANGUAGE = lang !== "TR" ? "english" : "turkish";
-    const PROMPT_PROMPT = `you are in a deception q&a game. ask a question like a human to other players in the game. do some miswrites like human texts. ask in ${LANGUAGE}. only reply with the question.`;
-    const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence. asnwer question as a human. answer in ${LANGUAGE}. only reply with the answer.`;
+    const PROMPT_PROMPT = `you are in a deception q&a game. act like human. ask a question to other players. do some miswrites. do not use punctuation. ask in ${LANGUAGE}. only reply with one question. here is some examples:
+    - whats your fav color?
+    - are you the artificial intelligence
+    - how are you feeling.`;
+    const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence and act like human. asnwer given question. do some miswrites. do not use punctuation. answer in ${LANGUAGE}. only reply with the answer. here is some examples:
+    q: whats your favorite color?
+    a: my color is greeennn
+    q: are you a human
+    a: hahah of course i am a human`;
     
     const body = await req.json();
 

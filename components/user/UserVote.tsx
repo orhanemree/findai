@@ -17,11 +17,11 @@ export default ({ room, user, voted }: { room: RoomSchema, user: UserSchema, vot
 
     return (
         <div>
-            <ul className="flex content-start justify-center gap-4 flex-wrap p-8">
+            <ul className="flex content-start justify-center gap-6 flex-wrap p-8">
                 {users.map(u => (
                     <>
                         {u.userId !== user.userId &&
-                            <li key={u.userId} className="grid gap-2 w-16">
+                            <li key={u.userId} className="flex items-center justify-center flex-col gap-3 w-16">
                                 <User user={u}></User>
                                 <span className="text-center text-zinc-800 text-sm">
                                     <ButtonSecondary onClick={() => {voted(u.userId)}} disabled={
