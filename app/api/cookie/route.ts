@@ -9,8 +9,6 @@ export const GET = (req: Request) => {
         cookies_[cookie.name] = cookie.value;
     }
 
-    console.log(cookies().getAll());
-
     if (!("language" in cookies_)) {
         cookies_.language = "EN"; // by default
     }

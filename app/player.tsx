@@ -6,6 +6,7 @@ import firebase from "@/utils/firebase";
 import { getDatabase, ref, onValue, set } from "firebase/database";
 import { RoomSchema } from "@/types";
 import { Message as MsgSchema } from "@/types";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 import Form from "@/components/form";
@@ -25,6 +26,8 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
 
     const { lang } = useContext(Context) as { lang: string };
 
+    const { push } = useRouter();
+
     const [room_, setRoom] = useState<RoomSchema>(room);
     const [prompt, setPrompt] = useState("");
     const [answer, setAnswer] = useState("");
@@ -41,6 +44,7 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
             const data = snapshot.val() as RoomSchema;
             setRoom(data);
 
+            // update messages
             const newMessages: MsgSchema[] = data.users
             .map(u => ({ userId: u.userId, content: u.answer, color: u.displayColor, type: "answer" } as MsgSchema))
             .filter(m => m.content !== "");
@@ -94,6 +98,26 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
 
     const voted = async (uid: string) => {
         await set(ref(db, `${userPath}/votedFor`), uid);
+    }
+
+    const leave = async  () => {
+        // reset cookies
+        await fetch("/api/cookie", {
+            method: "POST",
+            body: JSON.stringify({ cookies: [
+                {
+                    name: "room-id",
+                    value: "",
+                    expires: new Date().getTime()
+                },
+                {
+                    name: "user-id",
+                    value: "",
+                    expires: new Date().getTime()
+                }
+            ] })
+        });
+        push("/");
     }
 
 
@@ -187,6 +211,10 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
                                         }
                                         <a href="/join">{lang !== "TR" ? "You can play again." : "Tekrar oynayabilirsin."}</a>
                                     </div>
+
+                                    <ButtonPrimary onClick={leave}>
+                                        {lang !== "TR" ? "Leave" : "Ayrıl"}
+                                    </ButtonPrimary>
                                 </div>
                             }
                         </>

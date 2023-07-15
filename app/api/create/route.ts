@@ -43,7 +43,6 @@ export const POST = async (req: Request) => {
     const userId = randomUUID(); // random user id for host
 
     try {
-        console.log(body.AIprompt);
         // create new room in database
         await set(ref(db, `findai/rooms/${roomId}`), {
             roomId: roomId,

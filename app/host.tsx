@@ -4,9 +4,11 @@ import { useContext, useState, useEffect } from "react";
 import { Context } from "@/context/Context";
 import firebase from "@/utils/firebase";
 import { getDatabase, ref, onValue, set } from "firebase/database";
-import { RoomSchema, UserResult } from "@/types";
+import { RoomSchema, UserResult, Message as MsgSchema } from "@/types";
+import { useRouter } from "next/navigation";
 
 import ButtonPrimary from "@/components/ButtonPrimary";
+import Message from "@/components/Message";
 import UserDetailed from "@/components/user/UserDetailed";
 
 // initialize firebase rt database
@@ -18,8 +20,11 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
 
     const { lang } = useContext(Context) as { lang: string };
 
+    const { push } = useRouter();
+
     const [room_, setRoom] = useState<RoomSchema>(room);
     const [currPrompt, setCurrPrompt] = useState<number>(0);
+    const [messages, setMessages] = useState<MsgSchema[]>([]);
 
     const relativeDBPath = `findai/rooms/${roomId}`;
 
@@ -32,6 +37,30 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
         onValue(ref(db, relativeDBPath), (snapshot: any) => {
             const data = snapshot.val() as RoomSchema;
             setRoom(data);
+
+            // update messages
+            const newMessages: MsgSchema[] = data.users
+            .map(u => ({ userId: u.userId, content: u.answer, color: u.displayColor, type: "answer" } as MsgSchema))
+            .filter(m => m.content !== "");
+
+            if (data.prompt) {
+                const whosePrompt = data.users.map(u => u.prompt).indexOf(data.prompt);
+                newMessages.push({
+                    userId: "--no--id--room--prompt--",
+                    content: data.prompt,
+                    color: data.users[whosePrompt].displayColor, type: "prompt"
+                });
+            }
+            let updatedMessages = messages;
+            for (const msg of newMessages) {
+                const i = updatedMessages.findIndex(m => (
+                    m.userId === msg.userId && m.content === msg.content && m.color === msg.color
+                ));
+                if (i === -1) {
+                    updatedMessages.push(msg);
+                }
+            }
+            setMessages(updatedMessages);
         });
     }, []);
 
@@ -98,6 +127,26 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
         await set(ref(db,`${relativeDBPath}/playersWon`), playersWon);
     }
 
+    const leave = async  () => {
+        // reset cookies
+        await fetch("/api/cookie", {
+            method: "POST",
+            body: JSON.stringify({ cookies: [
+                {
+                    name: "room-id",
+                    value: "",
+                    expires: new Date().getTime()
+                },
+                {
+                    name: "user-id",
+                    value: "",
+                    expires: new Date().getTime()
+                }
+            ] })
+        });
+        push("/");
+    }
+
 
     // ai functions
 
@@ -114,7 +163,7 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
     }
 
     const AIgetAnswer = async (prompt: string) => {
-        const randomWaitTime = Math.floor(Math.random() * (15 - 5 + 1) + 5);
+        const randomWaitTime = Math.floor(Math.random() * (15 - 8 + 1) + 8);
         await new Promise(r => setTimeout(r, randomWaitTime*1000));
         const AIanswer = await ((await fetch("/api/ai", {
             method: "POST", body: JSON.stringify({ type: "answer", prompt: prompt })
@@ -123,8 +172,10 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
         return AIanswer!;
     }
 
+    // vote a user randomly
     const AIvote = () => {
-        const userIndex = Math.floor(Math.random() * (room_.population - 1) + 1); // index of a random user
+        // index of a random user
+        const userIndex = Math.floor(Math.random() * (room_.population - 1) + 1);
         return room_.users[userIndex].userId; // return users user id
     }
 
@@ -132,6 +183,21 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
         <div className="py-12">
             <div className="absolute top-5 left-5 default p-3 bg-zinc-100 text-sm">
                 {lang !== "TR" ? "Room" : "Oda"} ID: <span>{roomId}</span>
+            </div>
+            <div className="px-12 max-w-[500px]">
+                <ul className="flex flex-col gap-3 mb-5">
+                    {messages.map((m, i) => (
+                        <>
+                            <li key={m.userId} className={
+                                ((m.type === "prompt" && i !== 0) ? "mt-8" : "")
+                            }>
+                                <Message color={m.color} type={m.type}>
+                                    {m.content}
+                                </Message>
+                            </li>
+                        </>
+                    ))}
+                </ul>
             </div>
             <UserDetailed room={room_} />
             <div className="text-center mt-5">
@@ -144,10 +210,16 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
                             }>{currPrompt === room_.population ? (lang !== "TR" ? "Voting" : "Oylama")
                                 : (lang !== "TR" ? "Next" : "Devam")}</ButtonPrimary>
                         :
-                        // if players voted
-                            <ButtonPrimary onClick={showResults} disabled={
-                                (!(room_.users.filter(u => u.votedFor === "").length === 0) || !!room_.gotMostVote)
-                            }>{lang !== "TR" ? "Results" : "Sonuçlar"}</ButtonPrimary>
+                            // if players voted
+                            <div className="flex items-center justify-center gap-5">
+                                <ButtonPrimary onClick={showResults} disabled={
+                                    (!(room_.users.filter(u => u.votedFor === "").length === 0) || !!room_.gotMostVote)
+                                }>{lang !== "TR" ? "Results" : "Sonuçlar"}</ButtonPrimary>
+
+                                <ButtonPrimary onClick={leave} disabled={!room_.gotMostVote}>
+                                    {lang !== "TR" ? "Leave" : "Ayrıl"}
+                                </ButtonPrimary>
+                            </div>
                         }
                     </>
                 :
