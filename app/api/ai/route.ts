@@ -11,7 +11,7 @@ export const POST = async (req: Request) => {
 whats your fav color?
 are you the artificial intelligence
 how are you feeling`;
-    const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence and act like human. asnwer given question. do some miswrites. do not use punctuation. answer in turkish. only reply with the answer. here is some examples:
+    const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence and act like human. asnwer given question. do some miswrites. do not use punctuation. answer in ${LANGUAGE}. only reply with the answer. here is some examples:
 q: whats your favorite color?
 a: my color is greeennn
 q: are you a human
