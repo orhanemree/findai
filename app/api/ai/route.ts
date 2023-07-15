@@ -2,20 +2,42 @@ import { cookies } from "next/headers";
 
 const URL = "https://api.openai.com/v1/chat/completions";
 
+const language = {
+    EN: "english",
+    TR: "turkish"
+}
+
+const examples = {
+    prompt: {
+        EN: `whats your fav color?
+are you the artificial intelligence
+how are you feeling`,
+
+        TR: `en sevdiğin renk ne?
+yapay zeka sen misin
+nasıl hissediyorsun`
+    },
+
+    answer: {
+        EN: `q: whats your favorite color?
+a: my color is greenn
+q: are you a human
+a: hahah of course i am a human`,
+
+        TR: `q: en sevdiğin renk ne?
+a: yeşil
+q: yapay zeka sen misin
+a: hahah tabi ki yapay zka değilim`
+    }
+}
+
 
 export const POST = async (req: Request) => {
     
     const lang = cookies().get("language")?.value ?? "EN";
-    const LANGUAGE = lang !== "TR" ? "english" : "turkish";
-    const PROMPT_PROMPT = `you are in a deception q&a game. act like human. ask a question to other players. do some miswrites. ask in ${LANGUAGE}. only reply with one question. here is some examples:
-whats your fav color?
-are you the artificial intelligence
-how are you feeling`;
-    const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence and act like human. asnwer given question. do some miswrites. do not use punctuation. answer in ${LANGUAGE}. only reply with the answer. here is some examples:
-q: whats your favorite color?
-a: my color is greeennn
-q: are you a human
-a: hahah of course i am a human`;
+
+    const PROMPT_PROMPT = `you are in a deception q&a game. act like human. ask a question to other players. do miswrites. ask in ${language[lang as keyof Object]}. only reply with one question. some examples: ${examples.prompt[lang as keyof Object]}`;
+    const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence and act like human. asnwer given question. do miswrites. answer in ${language[lang as keyof Object]}. only reply with the answer. some examples:  ${examples.answer[lang as keyof Object]}`;
     
     const body = await req.json();
 
@@ -39,7 +61,9 @@ a: hahah of course i am a human`;
             })
         })).json();
 
-        return new Response(res.choices[0].message.content.toLowerCase());
+        const prompt: string = res.choices[0].message.content.toLowerCase();
+
+        return new Response(prompt.substring(0, prompt.length-1));
     }
     
     else if (body.type === "answer") {
@@ -75,7 +99,9 @@ a: hahah of course i am a human`;
             })
         })).json();
 
-        return new Response(res.choices[0].message.content.toLowerCase());
+        const answer: string = res.choices[0].message.content.toLowerCase();
+
+        return new Response(answer.substring(0, answer.length-1));
     }
 
     else {
