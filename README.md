@@ -1,7 +1,11 @@
 # 🦚 Find AI
+Find secret ChatGPT AI in a chat room. Playable game!
+
 A host, couple of players and a secret AI enter one chat room. Each player (and also the AI) asks one prompt. Everybody answers each prompt. Players try to analyze the answers and find out which one is the AI. At the end, each player votes for another user in the room. If majority votes for the AI, players win. Otherwise, AI wins.
 
 Read [fun facts](fun-facts.md) if you are interested in :)
+
+Visit [live demo](https://findai.vercel.app/).
 
 ## Technologies
 * Tailwind CSS
