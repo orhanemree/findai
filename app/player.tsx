@@ -151,7 +151,7 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
             <div className="grid px-12">
 
                 <div className="py-12 max-w-[500px] min-h-screen grid grid-rows-[min,1fr,auto]">
-                    <ul className="flex flex-col gap-3 mb-5">
+                    <ul className="flex flex-col gap-3 mb-5" style={{ gridGap: "12px" }}>
                         {messages.map((m, i) => (
                             <>
                                 <li key={m.userId} className={
@@ -171,7 +171,7 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
                                 user={room_.users[userIndex]} />
 
                             :
-                                <div className="grid gap-2">
+                                <div className="grid gap-2" style={{ gridGap: "8px" }}>
                                     <Description>{lang !== "TR" ? "Voting has ended." : "Oylama bitti."}</Description>
 
                                     <div className="grid grid-cols-[1fr,auto]">
