@@ -25,6 +25,7 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
     const [room_, setRoom] = useState<RoomSchema>(room);
     const [currPrompt, setCurrPrompt] = useState<number>(0);
     const [messages, setMessages] = useState<MsgSchema[]>([]);
+    const [askedPrompts, setAskedPrompts] = useState<string[]>([]);
 
     const relativeDBPath = `findai/rooms/${roomId}`;
 
@@ -80,18 +81,22 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
         }
     }
 
-    const key = new Date().getDate();
-
     const next = async () => {
         if (currPrompt < room_.population) {
             // clear all answers from players
             for (let i = 0; i < room_.population; ++i) {
                 await set(ref(db,`${relativeDBPath}/users/${i}/answer`), "");
             }
-            
+
+            // shuffle unasked prompts
             let prompts = room_.users.map(u => u.prompt);
-            const prompt = prompts.sort((a: any, b: any) =>
-                ((key * a) % prompts.length) - ((key * b) % prompts.length))[currPrompt];
+            prompts.sort(() => 0.5 - Math.random());
+            prompts = prompts.filter(p => !(askedPrompts.includes(p)));
+
+            // select first prompt in shuffled array
+            const prompt = prompts[0];
+            setAskedPrompts([...askedPrompts, prompt]);
+
             // update current prompt in database so player can see
             await set(ref(db,`${relativeDBPath}/prompt`), prompt);
     
@@ -157,13 +162,15 @@ export default ({ room, roomId, userId }: { room: RoomSchema, roomId: string, us
             method: "POST", body: JSON.stringify({ type: "prompt" })
         })).text());
 
-        // set ai prompt to db
-        await set(ref(db,`${relativeDBPath}/users/0/prompt`), AIprompt);
-        await set(ref(db,`${relativeDBPath}/users/0/ready`), true);
+        if (AIprompt) {
+            // set ai prompt to db
+            await set(ref(db,`${relativeDBPath}/users/0/prompt`), AIprompt);
+            await set(ref(db,`${relativeDBPath}/users/0/ready`), true);
+        }
     }
 
     const AIgetAnswer = async (prompt: string) => {
-        const randomWaitTime = Math.floor(Math.random() * (15 - 8 + 1) + 8);
+        const randomWaitTime = Math.floor(Math.random() * (20 - 14 + 1) + 14);
         await new Promise(r => setTimeout(r, randomWaitTime*1000));
         const AIanswer = await ((await fetch("/api/ai", {
             method: "POST", body: JSON.stringify({ type: "answer", prompt: prompt })
