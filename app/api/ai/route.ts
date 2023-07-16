@@ -41,9 +41,9 @@ export const POST = async (req: Request) => {
             })
         })).json();
 
-        const prompt: string = res.choices[0].message.content.toLowerCase();
+        const prompt: string = res.choices[0].message.content;
 
-        return new Response(prompt.substring(0, prompt.length-1));
+        return new Response(prompt);
     }
     
     else if (body.type === "answer") {
@@ -79,9 +79,9 @@ export const POST = async (req: Request) => {
             })
         })).json();
 
-        const answer: string = res.choices[0].message.content.toLowerCase();
+        const answer: string = res.choices[0].message.content;
 
-        return new Response(answer.substring(0, answer.length-1));
+        return new Response(answer);
     }
 
     else {
