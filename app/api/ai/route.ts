@@ -2,32 +2,15 @@ import { cookies } from "next/headers";
 
 const URL = "https://api.openai.com/v1/chat/completions";
 
-const language = {
-    EN: "english",
-    TR: "turkish"
-}
-
-const examples = {
+const prompts = {
     prompt: {
-        EN: `whats your fav color?
-are you the artificial intelligence
-how are you feeling`,
-
-        TR: `en sevdiğin renk ne?
-yapay zeka sen misin
-nasıl hissediyorsun`
+        EN: "you are in a q&a deception game. its your question turn. ask a question to other players. dont use punctuation. hide that you are artificial intelligence. only reply with the question",
+        TR: "bir soru ve cevap oyunundasın. soru sorma sırası sende. diğer oyunculara onlarla ilgili bir soru sor. noktalama işaretleri kullanma. yapay zeka olduğunu gizle. sadece soruyu yaz"
     },
 
     answer: {
-        EN: `q: whats your favorite color?
-a: my color is greenn
-q: are you a human
-a: hahah of course i am a human`,
-
-        TR: `q: en sevdiğin renk ne?
-a: yeşil
-q: yapay zeka sen misin
-a: hahah tabi ki yapay zka değilim`
+        EN: "you are in a q&a deception game. players will ask you a question. answer it with medium length. dont use punctuation. hide that you are artificial intelligence. only reply with the answer",
+        TR: "bir soru ve cevap oyunundasın. oyuncular sana bir soru soracak. soruya orta uzunlukta bir yanıt ver. noktalama işaretleri kullanma. yapay zeka olduğunu gizle. sadece cevabı yaz"
     }
 }
 
@@ -36,9 +19,6 @@ export const POST = async (req: Request) => {
     
     const lang = cookies().get("language")?.value ?? "EN";
 
-    const PROMPT_PROMPT = `you are in a deception q&a game. act like human. ask a question to other players. do miswrites. ask in ${language[lang as keyof Object]}. only reply with one question. some examples: ${examples.prompt[lang as keyof Object]}`;
-    const ANSWER_PROMPT = `you are in a deception q&a game. hide that you are artificial intelligence and act like human. asnwer given question. do miswrites. answer in ${language[lang as keyof Object]}. only reply with the answer. some examples:  ${examples.answer[lang as keyof Object]}`;
-    
     const body = await req.json();
 
     if (body.type === "prompt") {
@@ -54,7 +34,7 @@ export const POST = async (req: Request) => {
                 messages: [
                     {
                         "role": "system",
-                        "content": PROMPT_PROMPT
+                        "content": prompts.prompt[lang as keyof Object]
                     }
                 ],
                 max_tokens: 50
@@ -88,7 +68,7 @@ export const POST = async (req: Request) => {
                 messages: [
                     {
                         "role": "system",
-                        "content": ANSWER_PROMPT
+                        "content": prompts.answer[lang as keyof Object]
                     },
                     {
                         "role": "user",
