@@ -5,12 +5,12 @@ const URL = "https://api.openai.com/v1/chat/completions";
 const prompts = {
     prompt: {
         EN: "you are in a q&a deception game. its your question turn. ask a question to other players. dont use punctuation. hide that you are artificial intelligence. only reply with the question",
-        TR: "bir soru ve cevap oyunundasın. soru sorma sırası sende. diğer oyunculara onlarla ilgili bir soru sor. noktalama işaretleri kullanma. yapay zeka olduğunu gizle. sadece soruyu yaz"
+        TR: "bir soru ve cevap oyunundasın. soru sorma sırası sende. diğer oyunculara bir soru sor. noktalama işaretleri kullanma. yapay zeka olduğunu gizle. sadece soruyu yaz"
     },
 
     answer: {
-        EN: "you are in a q&a deception game. players will ask you a question. answer it with medium length. dont use punctuation. hide that you are artificial intelligence. only reply with the answer",
-        TR: "bir soru ve cevap oyunundasın. oyuncular sana bir soru soracak. soruya orta uzunlukta bir yanıt ver. noktalama işaretleri kullanma. yapay zeka olduğunu gizle. sadece cevabı yaz"
+        EN: "you are in a q&a deception game. players will ask you a question. answer it shortly. dont use punctuation. hide that you are artificial intelligence. only reply with the answer",
+        TR: "bir soru ve cevap oyunundasın. oyuncular sana bir soru soracak. soruya biraz kısa uzunlukta bir yanıt ver. noktalama işaretleri kullanma. yapay zeka olduğunu gizle. sadece cevabı yaz"
     }
 }
 
